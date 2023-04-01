@@ -1,67 +1,103 @@
 #include <iostream>
-#include <stdlib.h>
-#include <math.h>
+#include <vector>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
 #include <windows.h>
-#include <time.h>
 
 using namespace std;
 
-class walker{
+class Coordinates { // Класс для координат
 public:
-    int start_x, start_y, x, y;
-    double r;
-    char arr[10][10];
+    double x;
+    double y;
 
-void init(){
-    start_x=5; //начальные координаты
-    start_y=5;
-    r=0;
-    for(int i =0;i<10;i++){
-        for(int j=0;j<10;j++){
-            arr[i][j]='-';
-        }
-}
-
-}
-void changepos(){
-     cout<<"start_x:"<<start_x<<endl;
-     cout<<"start_y:"<<start_y<<endl;
-    srand(time(NULL));
-    x=rand()%5-2; //сколько ходит
-    y=rand()%5-2;
-     cout<<"x:"<<x<<endl;
-     cout<<"y:"<<y<<endl;
-    if (start_x + x > 10) x = 10; // ограничения
-    if (start_y + y > 10) y = 10;
-    if (start_x + x < 0) x = 0;
-    if (start_y + y < 0) y = 0; //
-    arr[start_x + x][start_y + y]='S';
-    start_x+=x;
-    start_y+=y;
-    r=sqrt(pow((start_x+x),2)+pow((start_y+y),2)); //считает расстояние от 0,0
-     cout<<"r:"<<r<<endl;
-    x=0;
-    y=0; 
-    for(int i =0;i<10;i++){
-        for(int j=0;j<10;j++){
-            cout<<arr[i][j]<<" ";
-        }
-        cout<<""<<endl;
+    Coordinates() {
+        x = 0;
+        y = 0;
     }
-    arr[start_x + x][start_y + y]='-';
-    r=0;
-}
 
+    Coordinates(double x0, double y0) {
+        x = x0;
+        y = y0;
+    }
 };
 
-int main()
-{
-walker _w;
-_w.init();
-while(true){
-    _w.changepos();
+class Object { // Класс для объекта
+public:
+    int id;
+    vector<Coordinates> path;
+    Coordinates current_position;
+    // Конструктор
+    Object(int object_id, double x0, double y0) {
+        id = object_id;
+        current_position = Coordinates(x0, y0);
+        path.push_back(current_position);
+    }
+
+    double distance_traveled() { // Метод для рассчета пройденного расстояния
+        double distance = 0;
+        for (int i = 1; i < path.size(); i++) {
+            distance += sqrt(pow(path[i].x - path[i-1].x, 2) + pow(path[i].y - path[i-1].y, 2));
+        }
+        return distance;
+    }
+
+    double distance_to_target(Coordinates target) { // Метод для рассчета расстояния до цели
+        return sqrt(pow(target.x - current_position.x, 2) + pow(target.y - current_position.y, 2));
+    }
+
+    void move() { // Метод для перемещения объекта
+        srand(time(NULL));
+        double x = current_position.x + ((rand() % 5) - 2);
+        double y = current_position.y + ((rand() % 5) - 2);
+        // Ограничение для перемещения объекта в пределах матрицы 10x10
+        if (current_position.x + x > 9) x = 9 - current_position.x;
+        if (current_position.y + y > 9) y = 9 - current_position.y;
+        if (current_position.x + x < 0) x = -current_position.x;
+        if (current_position.y + y < 0) y = -current_position.y;
+        current_position = Coordinates(x, y);
+        path.push_back(current_position);
+    }
+};
+
+void print(Object obj, double distance_traveled, double distance_to_target) {
+    cout << "Object id: " << obj.id << endl;
+    cout << "Current position: (" << obj.current_position.x << ", " << obj.current_position.y << ")" << endl;
+    cout << "Distance traveled: " << distance_traveled << endl;
+    cout << "Distance to target: " << distance_to_target << endl;
+    
+    // Вывод матрицы перемещения объекта
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (i == round(obj.current_position.y) && j == round(obj.current_position.x)) {
+                cout << "S ";
+            } else {
+                cout << "- ";
+            }
+        }
+        cout << endl;
+    }
+
+    cout << endl;
     Sleep(1000);
+    //system("pause");
     system("cls");
 }
-return 0;
+
+int main() {
+    
+    Object obj(1, 5, 5); // Создание объекта и задание начальных координат
+    Coordinates target(10, 10); // Создание целевых координат
+
+    while (true) {
+        obj.move(); // Перемещение объекта
+        // Рассчет расстояний
+        double distance_traveled = obj.distance_traveled();
+        double distance_to_target = obj.distance_to_target(target);
+
+        print(obj, distance_traveled, distance_to_target);
+    }
+
+    return 0;
 }

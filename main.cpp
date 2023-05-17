@@ -1,11 +1,20 @@
+#include <iostream>
+#include <cstdlib>
+#include <cmath>
+#include <ctime>
+#include <windows.h>
+#include <vector>
+#include <iomanip>
 #include "Object.h"
-#include "Coordinates.h"
+#include "UserEquipment.h"
+
+#define MAT 20
 
 int main() {
-    Object obj(1, 5, 5);
+    UserEquipment ue(1, 1, 3);
     while (true) {
-        obj.move();
-        obj.print();
+        ue.move();
+        ue.print();
     }
     return 0;
 }

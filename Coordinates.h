@@ -1,12 +1,13 @@
 #pragma once
-
+#define MAT 20
 class Coordinates {
 public:
-    double x;
-    double y;
+    int x;
+    int y;
+    int z;
 
     Coordinates();
-    Coordinates(double x0, double y0);
+    Coordinates(int x0, int y0);
 
-    double distance_to_target(const Coordinates& other) const;
+    int distance_to_target(const Coordinates& other) const;
 };
